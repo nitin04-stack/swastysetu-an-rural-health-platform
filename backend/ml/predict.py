@@ -31,7 +31,7 @@ def _load_ml_dependencies():
 
 def build_model(num_classes):
     _load_ml_dependencies()
-    model = _models.mobilenet_v3_small(pretrained=True)
+    model = _models.mobilenet_v3_small(weights=None)
     in_features = model.classifier[3].in_features
     model.classifier[3] = _nn.Linear(in_features, num_classes)
     model.eval()
