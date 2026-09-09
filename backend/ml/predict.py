@@ -9,6 +9,7 @@ _torch = None
 _nn = None
 _models = None
 _transform = None
+_model_cache = {}
 
 
 def _load_ml_dependencies():
@@ -37,6 +38,18 @@ def build_model(num_classes):
     model.classifier[3] = _nn.Linear(in_features, num_classes)
     return model
 
+
+def _get_model(biomarker_type, classes, weight_path):
+    if biomarker_type in _model_cache:
+        return _model_cache[biomarker_type]
+
+    model = build_model(len(classes))
+    state_dict = _torch.load(weight_path, map_location="cpu", weights_only=True)
+    model.load_state_dict(state_dict)
+    model.eval()
+    _model_cache[biomarker_type] = model
+    return model
+
 def predict_biomarker(image_path, biomarker_type):
     classes = ["Normal", "Moderate_change", "Severe_change"]
 
@@ -58,16 +71,13 @@ def predict_biomarker(image_path, biomarker_type):
                 "confidence": 0.50
             }
 
-        # 2. Load Model (with CPU mapping for Render)
-        model = build_model(len(classes))
-        model.load_state_dict(_torch.load(weight_path, map_location="cpu"))
-        model.eval()
+        model = _get_model(biomarker_type, classes, weight_path)
 
         # 3. Process Image
         img = Image.open(image_path).convert("RGB")
         tensor = _transform(img).unsqueeze(0)
 
-        with _torch.no_grad():
+        with _torch.inference_mode():
             outputs = model(tensor)
             probs = _torch.softmax(outputs, dim=1)[0]
             conf, pred_idx = _torch.max(probs, dim=0)
