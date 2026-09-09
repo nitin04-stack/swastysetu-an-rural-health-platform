@@ -154,6 +154,7 @@ def new_triage(patient_id):
         except Exception as e:
             flash(f"Error in vitals: {str(e)}", "error")
             return redirect(url_for("asha.new_triage", patient_id=patient.id))
+        
 
     return render_template("asha/triage.html", patient=patient)
 
@@ -163,9 +164,14 @@ def new_triage(patient_id):
 def biomarker_capture(triage_id):
     triage = Triage.query.get_or_404(triage_id)
     if request.method == "POST":
-        b_type = request.form["biomarker_type"]
-        file = request.files.get("photo")
         try:
+            b_type = request.form.get("biomarker_type", "").strip().lower()
+            file = request.files.get("photo")
+            if b_type not in {"eye", "nail", "tongue"}:
+                raise ValueError("Please select a valid biomarker type.")
+            if not file or not file.filename:
+                raise ValueError("Please select an image before submitting.")
+
             filename = process_and_save_image(file, current_app.config["UPLOAD_FOLDER"])
             result = predict_biomarker(
                 os.path.join(current_app.config["UPLOAD_FOLDER"], filename), b_type
