@@ -1,0 +1,33 @@
+{% extends "shared/base.html" %}
+{% block title %}High Risk Follow-up{% endblock %}
+{% block content %}
+<div class="page-title" style="color: var(--emergency);">🛑 High Risk Monitoring</div>
+<div class="page-subtitle">Immediate attention required for these MCH & Chronic patients.</div>
+
+<div class="card-list">
+  {% for p in patients %}
+  <div class="card" style="border-left: 6px solid var(--emergency);">
+    <div class="card-row">
+      <div>
+        <strong>{{ p.name }}</strong> ({{ p.age }} yrs) 
+        <span class="badge badge-neutral">{{ p.category|upper }}</span>
+        <br>
+        <span style="font-size: 0.9rem; color: var(--text-muted);">
+            Last Risk: <strong>{{ p.triages[0].risk_level }}</strong> | ABHA: {{ p.abha_id }}
+        </span>
+      </div>
+      <div class="btn-row">
+          <a href="{{ url_for('asha.new_triage', patient_id=p.id) }}" class="btn">New Check-up</a>
+      </div>
+    </div>
+    <div style="margin-top:10px; font-size:0.85rem; background:#fff5f5; padding:8px; border-radius:5px;">
+        📍 Address: {{ p.address or 'No address provided' }}
+    </div>
+  </div>
+  {% else %}
+  <div class="card">✅ Great! No high-risk follow-ups currently pending.</div>
+  {% endfor %}
+</div>
+
+<a href="{{ url_for('asha.dashboard') }}" class="btn btn-secondary btn-block" style="margin-top:20px;">Back to Dashboard</a>
+{% endblock %}

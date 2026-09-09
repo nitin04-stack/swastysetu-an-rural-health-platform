@@ -1,0 +1,43 @@
+{% extends "shared/base.html" %}
+{% block title %}Triage - {{ patient.name }}{% endblock %}
+{% block content %}
+<div class="page-title">Triage Check-up: {{ patient.name }}</div>
+<div class="page-subtitle">ABHA: {{ patient.abha_id }}</div>
+
+<div class="card">
+  <form method="POST">
+  {% if patient.category == 'pregnant' %}
+  <label style="color: #be185d;">🤰 Maternal Status: Months/Weeks of Pregnancy</label>
+  <input type="text" name="maternal_details" placeholder="e.g. 6 Months / 24 Weeks" style="border-color: #fecaca;">
+  {% endif %}
+
+    <label>SpO2 (%)</label>
+    <input type="number" name="spo2" min="50" max="100" placeholder="e.g. 96">
+
+    <label>Blood Pressure - Systolic (mmHg)</label>
+    <input type="number" name="bp_systolic" placeholder="e.g. 120">
+
+    <label>Blood Pressure - Diastolic (mmHg)</label>
+    <input type="number" name="bp_diastolic" placeholder="e.g. 80">
+
+    <label>Pulse (bpm)</label>
+    <input type="number" name="pulse" placeholder="e.g. 78">
+
+    <label>Temperature (°F)</label>
+    <input type="number" step="0.1" name="temperature_f" placeholder="e.g. 98.6">
+
+    <label>Fever duration (days, 0 if none)</label>
+    <input type="number" name="fever_days" value="0" min="0">
+
+    <label>Chief Complaint</label>
+    <textarea name="chief_complaint" placeholder="What is the patient complaining of?"></textarea>
+
+    <div class="checkbox-row">
+      <input type="checkbox" name="severe_symptom_flag" id="severe">
+      <label for="severe" style="margin:0;">Severe symptoms present (chest pain, breathlessness, unconsciousness, heavy bleeding)</label>
+    </div>
+
+    <button type="submit" class="btn btn-block">Save Triage &amp; Continue to Photos</button>
+  </form>
+</div>
+{% endblock %}

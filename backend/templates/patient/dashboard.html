@@ -1,0 +1,43 @@
+{% extends "shared/base.html" %}
+{% block title %}My Health Dashboard{% endblock %}
+{% block content %}
+<div class="page-title">Welcome, {{ patient.name }}</div>
+<div class="page-subtitle">ABHA ID: {{ patient.abha_id }}</div>
+
+<!-- Health Literacy Tip (SIH Point) -->
+<div class="card" style="background: #ecfdf5; border: 1px solid #10b981;">
+    <strong style="color: #065f46;">💡 Daily Health Tip:</strong>
+    <p style="margin: 5px 0 0; font-size: 0.9rem;">Clean water and hand washing prevent 80% of infections. Always use boiled water during monsoon.</p>
+</div>
+
+<!-- Queue Awareness -->
+<div class="card">
+    <h3>🕒 My Consultation Status</h3>
+    {% set pending = patient.triages | rejectattr("consultation") | list %}
+    {% if pending %}
+        <p style="color: var(--moderate);"><strong>Status:</strong> In Queue (Approx. Wait: 15-20 mins)</p>
+        <div style="font-size: 1.5rem; font-weight: bold; text-align: center; color: var(--primary);">#{{ pending|length + 2 }}</div>
+        <p style="text-align: center; font-size: 0.8rem;">Queue Position</p>
+    {% else %}
+        <p style="color: var(--normal);">✅ No active check-ups in queue.</p>
+    {% endif %}
+</div>
+
+<!-- Prescription History -->
+<h3>My Prescriptions</h3>
+{% for t in patient.triages %}
+    {% if t.consultation %}
+    <div class="card">
+        <div class="card-row">
+            <strong>Check-up Date: {{ t.created_at.strftime('%d %b %Y') }}</strong>
+            <span class="badge badge-Normal">Done</span>
+        </div>
+        <p><strong>Medicines:</strong> {{ t.consultation.prescription }}</p>
+        {% if t.consultation.lab_tests_recommended %}
+        <p style="font-size: 0.85rem; color: #ef4444;">🧪 <strong>Required Tests:</strong> {{ t.consultation.lab_tests_recommended }}</p>
+        {% endif %}
+        <button onclick="window.print()" class="btn btn-secondary" style="font-size: 0.7rem; padding: 5px 10px;">🖨️ Download Prescription</button>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}

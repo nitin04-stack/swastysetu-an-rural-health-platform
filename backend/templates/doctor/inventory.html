@@ -1,0 +1,59 @@
+{% extends "shared/base.html" %}
+{% block title %}Inventory{% endblock %}
+{% block content %}
+<div class="page-title">Medicine &amp; Diagnostic Inventory</div>
+<div class="page-subtitle">Real-time stock visibility across facilities.</div>
+
+<div class="card-list">
+  {% for item in items %}
+  <div class="card">
+    <div class="card-row">
+      <div>
+        <strong>{{ item.item_name }}</strong> <span style="color:var(--text-muted); font-size:0.8rem;">({{ item.item_type }})</span><br>
+        <span style="font-size:0.85rem; color:var(--text-muted);">{{ item.facility.name }}</span>
+      </div>
+      {% if item.stock_count <= item.low_stock_threshold %}
+        <span class="badge badge-Emergency">Low Stock: {{ item.stock_count }}</span>
+      {% else %}
+        <span class="badge badge-Normal">In Stock: {{ item.stock_count }}</span>
+      {% endif %}
+    </div>
+    <form method="POST" action="{{ url_for('doctor.update_inventory', item_id=item.id) }}" class="btn-row" style="margin-top:10px;">
+      <input type="number" name="stock_count" value="{{ item.stock_count }}" style="flex:1;">
+      <button type="submit" class="btn btn-secondary">Update Stock</button>
+    </form>
+  </div>
+  {% else %}
+  <div class="card">No inventory items yet.</div>
+  {% endfor %}
+</div>
+
+<h3>Add New Item</h3>
+<div class="card">
+  <form method="POST" action="{{ url_for('doctor.add_inventory') }}">
+    <label>Facility</label>
+    <select name="facility_id" required>
+      {% for f in facilities %}
+      <option value="{{ f.id }}">{{ f.name }}</option>
+      {% endfor %}
+    </select>
+
+    <label>Item Name</label>
+    <input type="text" name="item_name" required>
+
+    <label>Type</label>
+    <select name="item_type">
+      <option value="medicine">Medicine</option>
+      <option value="diagnostic">Diagnostic Kit</option>
+    </select>
+
+    <label>Initial Stock</label>
+    <input type="number" name="stock_count" value="0">
+
+    <label>Low Stock Threshold</label>
+    <input type="number" name="low_stock_threshold" value="10">
+
+    <button type="submit" class="btn btn-block">Add Item</button>
+  </form>
+</div>
+{% endblock %}

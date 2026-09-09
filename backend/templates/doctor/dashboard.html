@@ -1,0 +1,51 @@
+{% extends "shared/base.html" %}
+{% block title %}Doctor Dashboard{% endblock %}
+{% block content %}
+<div class="page-title">Clinic Management Dashboard</div>
+<div class="page-subtitle">Assessing Priority Cases at {{ current_user.facility.name }}</div>
+
+<!-- Quick Search Bar -->
+<div class="card" style="background: #f8fafc; border: 2px solid var(--primary);">
+    <form method="GET" style="display:flex; gap:10px;">
+        <input type="text" name="search" placeholder="🔍 Search Patient by Name or ABHA ID..." style="flex:1;">
+        <button type="submit" class="btn">Search</button>
+    </form>
+    
+    {% if searched_patients %}
+    <div style="margin-top:15px; border-top:1px solid #ddd; padding-top:10px;">
+        <h4>Results:</h4>
+        {% for sp in searched_patients %}
+        <div style="padding:8px; background:white; margin-bottom:5px; border-radius:5px; display:flex; justify-content:space-between; align-items:center;">
+            <span><strong>{{ sp.name }}</strong> (ABHA: {{ sp.abha_id }})</span>
+            <div class="btn-row">
+              <a href="{{ url_for('doctor.patient_dossier', patient_id=sp.id) }}" class="btn btn-secondary" style="padding:4px 8px; font-size:0.8rem;">Open Record</a>
+              <a href="{{ url_for('doctor.download_patient', patient_id=sp.id) }}" class="btn" style="padding:4px 8px; font-size:0.8rem;">Download</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<h3 style="margin-top:30px;">🔴 Emergency & Triage Queue</h3>
+<div class="card-list">
+  {% for t in triages %}
+  <div class="card">
+    <div class="card-row">
+      <div>
+        <strong>{{ t.patient.name }}</strong> ({{ t.patient.age }} yrs) 
+        <span class="badge badge-{{ t.risk_level }}">{{ t.risk_level }}</span>
+        <br>
+        <span style="color:var(--text-muted); font-size:0.85rem;">{{ t.chief_complaint or 'No notes' }}</span>
+      </div>
+      <div class="btn-row">
+        <a href="{{ url_for('doctor.consult', triage_id=t.id) }}" class="btn">Start Consult</a>
+        <a href="{{ url_for('doctor.download_patient', patient_id=t.patient.id) }}" class="btn btn-secondary">Download</a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="card">✅ Queue is empty. No pending triage cases.</div>
+  {% endfor %}
+</div>
+{% endblock %}

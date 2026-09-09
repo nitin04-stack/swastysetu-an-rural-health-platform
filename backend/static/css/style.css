@@ -1,0 +1,193 @@
+:root {
+  --primary: #134e4a;       
+  --primary-dark: #0f3d3a;
+  --emergency: #e11d48;     
+}
+
+.navbar .brand {
+  font-family: 'Trebuchet MS', sans-serif;
+  letter-spacing: 1px;
+  font-weight: bold;
+  font-size: 1.4rem;
+}
+:root {
+  --primary: #0f766e;       
+  --primary-dark: #0b5c56;
+  --emergency: #dc2626;
+  --moderate: #d97706;
+  --normal: #16a34a;
+  --bg: #f4f6f7;
+  --card-bg: #ffffff;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+}
+
+a { color: var(--primary); text-decoration: none; }
+
+/* ---------- Top nav ---------- */
+.navbar {
+  background: var(--primary);
+  color: white;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.navbar .brand { font-weight: 700; font-size: 1.1rem; }
+.navbar .nav-links { display: flex; gap: 16px; flex-wrap: wrap; align-items: center; }
+.navbar a { color: white; opacity: 0.9; font-size: 0.95rem; }
+.navbar a:hover { opacity: 1; text-decoration: underline; }
+.navbar .badge-role {
+  background: rgba(255,255,255,0.2);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+/* ---------- Layout ---------- */
+.container { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; }
+.page-title { font-size: 1.4rem; margin-bottom: 4px; }
+.page-subtitle { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; }
+
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.card-list { display: flex; flex-direction: column; gap: 12px; }
+.card-row {
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: 8px;
+}
+
+/* ---------- Forms ---------- */
+label { display: block; font-weight: 600; margin: 14px 0 6px; font-size: 0.92rem; }
+input[type=text], input[type=number], input[type=tel], input[type=password],
+input[type=email], select, textarea {
+  width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px;
+  font-size: 1rem; background: white;
+}
+textarea { resize: vertical; min-height: 80px; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.checkbox-row input { width: auto; }
+
+.btn {
+  display: inline-block; padding: 12px 20px; border-radius: 8px; border: none;
+  background: var(--primary); color: white; font-size: 1rem; font-weight: 600;
+  cursor: pointer; text-align: center;
+}
+.btn:hover { background: var(--primary-dark); }
+.btn-secondary { background: white; color: var(--primary); border: 1px solid var(--primary); }
+.btn-block { width: 100%; margin-top: 18px; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+/* ---------- Badges (risk levels / status) ---------- */
+.badge { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; color: white; }
+.badge-Emergency { background: var(--emergency); }
+.badge-Moderate { background: var(--moderate); }
+.badge-Normal { background: var(--normal); }
+.badge-neutral { background: #64748b; }
+
+/* ---------- Flash messages ---------- */
+.flash { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 0.92rem; }
+.flash-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.flash-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* ---------- Photo capture ---------- */
+.photo-options { display: flex; gap: 10px; margin: 14px 0; flex-wrap: wrap; }
+.photo-preview {
+  width: 100%; max-width: 280px; border-radius: 10px; margin-top: 12px;
+  border: 1px solid var(--border); display: none;
+}
+.biomarker-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+@media (min-width: 640px) {
+  .biomarker-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+/* ---------- Login/signup screens ---------- */
+.auth-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.auth-card { max-width: 380px; width: 100%; }
+.auth-title { text-align: center; font-size: 1.5rem; margin-bottom: 4px; color: var(--primary-dark); }
+.auth-subtitle { text-align: center; color: var(--text-muted); margin-bottom: 24px; font-size: 0.9rem; }
+
+/* ---------- Stat tiles ---------- */
+.stats-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.stat-tile {
+  flex: 1; min-width: 110px; background: white; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px; text-align: center;
+}
+.stat-tile .num { font-size: 1.6rem; font-weight: 700; color: var(--primary-dark); }
+.stat-tile .lbl { font-size: 0.8rem; color: var(--text-muted); }
+
+/* ---------- Live camera modal ---------- */
+.camera-modal {
+  display: none;              /* toggled to flex by camera.js */
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  z-index: 1000;
+  align-items: center; justify-content: center;
+}
+.camera-modal-inner {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+#camera-video {
+  width: 100%; max-width: 480px; max-height: 70vh;
+  background: #000; border-radius: 8px;
+  object-fit: cover;
+}
+.camera-controls {
+  display: flex; gap: 14px; margin-top: 18px; flex-wrap: wrap; justify-content: center;
+  padding: 0 16px;
+}
+.camera-shutter {
+  background: var(--emergency);
+  font-size: 1.1rem;
+  padding: 14px 26px;
+}
+.camera-shutter:hover { background: #b91c1c; }
+
+/* ---------- Responsive tweaks ---------- */
+@media (max-width: 480px) {
+  .navbar { padding: 12px; }
+  .container { padding: 14px 12px 50px; }
+  .card { padding: 14px; }
+}
+.camera-controls {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    z-index: 1001;
+}
+
+#camera-switch-btn {
+    background-color: #4b5563; 
+    font-size: 1.5rem;
+}
+
+#camera-close-btn {
+    background-color: #ef4444; 
+    font-size: 1.5rem;
+}

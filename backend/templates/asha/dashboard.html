@@ -1,0 +1,71 @@
+{% extends "shared/base.html" %}
+{% block title %}ASHA Dashboard{% endblock %}
+{% block content %}
+<div class="page-title">ASHA Dashboard</div>
+<div class="page-subtitle">Frontline Worker: {{ current_user.name }} | {{ current_user.facility.name }}</div>
+
+<div style="display: flex; gap: 10px; margin-bottom: 25px;">
+    <a href="{{ url_for('asha.register_patient') }}" class="btn" style="flex:1;">+ Register Patient</a>
+    <a href="{{ url_for('asha.high_risk_followup') }}" class="btn" style="flex:1; background: var(--emergency);">⚠️ High Risk List</a>
+</div>
+<div class="card" style="padding: 10px; border: 2px solid var(--primary);">
+    <input type="text" id="ashaSearch" onkeyup="filterPatients()" placeholder="🔍 Quick Search Patient by Name or ABHA..." style="border:none; outline:none;">
+</div>
+
+<script>
+function filterPatients() {
+  let input = document.getElementById('ashaSearch').value.toUpperCase();
+  let cards = document.querySelectorAll('.card-list .card'); // Sabhi cards ko pakdo
+  cards.forEach(card => {
+    let text = card.innerText.toUpperCase();
+    card.style.display = text.includes(input) ? "" : "none"; // Hide/Show logic
+  });
+}
+</script>
+
+<h3 style="margin-top:30px;">All Registered Patients</h3>
+
+<div class="card">
+    <h3>🔔 Scheduled Follow-ups</h3>
+    {% for f in followups %}
+    <div style="padding: 10px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <strong>{{ f.patient.name }}</strong> 
+            <small style="color:var(--text-muted);">({{ f.next_followup_date.strftime('%d %b') }})</small>
+        </div>
+        <a href="{{ url_for('asha.new_triage', patient_id=f.patient.id) }}" style="font-size: 0.8rem; font-weight: bold;">[START CHECK-UP]</a>
+    </div>
+    {% else %}
+    <p style="color:var(--text-muted); font-size:0.9rem;">No scheduled follow-ups for today.</p>
+    {% endfor %}
+</div>
+
+<h3 style="margin-top:30px;">All Registered Patients</h3>
+<div class="card-list">
+  {% for p in patients %}
+  <div class="card">
+    <div class="card-row">
+      <div>
+        <strong>{{ p.name }}</strong> ({{ p.category }})<br>
+        <span style="color: var(--text-muted); font-size:0.85rem;">ABHA: {{ p.abha_id }}</span>
+        <div style="margin-top:8px; color:var(--text-muted); font-size:0.8rem; line-height:1.6;">
+          <strong>Registered:</strong> {{ p.created_at.strftime('%d %b %Y, %I:%M %p') }}<br>
+          <strong>Age/Gender:</strong> {{ p.age or 'N/A' }} / {{ p.gender or 'N/A' }}<br>
+          <strong>Phone:</strong> {{ p.phone or 'N/A' }}<br>
+          <strong>Address:</strong> {{ p.address or 'N/A' }}
+        </div>
+      </div>
+      <div class="btn-row">
+        {% if p.triages %}
+          <span class="badge badge-{{ p.triages[0].risk_level }}">{{ p.triages[0].risk_level }}</span>
+        {% endif %}
+        <a href="{{ url_for('asha.new_triage', patient_id=p.id) }}" class="btn btn-secondary" style="font-size:0.8rem;">New Triage</a>
+        <form method="POST" action="{{ url_for('asha.delete_patient', patient_id=p.id) }}" onsubmit="return confirm('Delete this patient and all related records?');">
+          <button type="submit" class="btn" style="font-size:0.8rem; background:var(--emergency);">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

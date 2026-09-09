@@ -1,0 +1,136 @@
+{% extends "shared/base.html" %}
+{% block title %}Consultation{% endblock %}
+{% block content %}
+<div class="page-title">Doctor Consultation</div>
+<div class="page-subtitle">Patient: {{ patient.name }} | ABHA: {{ patient.abha_id }}</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+  <!-- Left Side: Triage Data & Inventory -->
+  <div>
+    <div class="card">
+        <h3>Check-up Summary</h3>
+        <p><strong>Chief Complaint:</strong> {{ triage.chief_complaint or 'None' }}</p>
+        <p><strong>Vitals:</strong> BP {{triage.bp_systolic}}/{{triage.bp_diastolic}} | SpO2 {{triage.spo2}}% | Risk: <span class="badge badge-{{triage.risk_level}}">{{triage.risk_level}}</span></p>
+        
+        {% if triage.biomarker_images %}
+        <div style="display:flex; gap:10px; margin-top:10px;">
+            {% for img in triage.biomarker_images %}
+            <div>
+                <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" width="80" style="border-radius:5px; border:1px solid #ddd;">
+                <div style="font-size:0.7rem; text-align:center;">{{ img.biomarker_type }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ... Summary card ke niche aur Inventory card ke upar ... -->
+    <div class="card" style="background: #fffbeb; border: 1px solid #fcd34b;">
+        <h4 style="color: #92400e; margin-top:0;">📞 Assisted Teleconsultation</h4>
+        <p style="font-size: 0.8rem; color: #78350f;">Connect with the ASHA worker or Patient immediately.</p>
+        
+        <div style="display: grid; gap: 10px; margin-top: 10px;">
+            {% if asha and asha.phone %}
+            <a href="tel:{{ asha.phone }}" class="btn" style="background: #2563eb; font-size: 0.85rem; text-align: center;">
+                📞 Call ASHA: {{ asha.name }}
+            </a>
+            {% endif %}
+
+            {% if patient.phone %}
+            <a href="tel:{{ patient.phone }}" class="btn" style="background: #059669; font-size: 0.85rem; text-align: center;">
+                📞 Call Patient: {{ patient.name }}
+            </a>
+            <a href="https://wa.me/91{{ patient.phone }}?text=Hello, this is Dr. {{ current_user.name }}. Starting your tele-consultation now."
+               target="_blank" class="btn" style="background: #25D366; font-size: 0.85rem; text-align: center;">
+                🎥 Video Call Patient
+            </a>
+            {% endif %}
+        </div>
+        
+        <div style="margin-top: 10px; font-size: 0.75rem; color: #92400e; border-top: 1px dashed #fcd34b; padding-top: 8px;">
+            <strong>ASHA No:</strong> {{ asha.phone if asha else 'Not Available' }}<br>
+            <strong>Patient No:</strong> {{ patient.phone or 'Not Available' }}
+        </div>
+    </div>
+
+    <!-- Live Inventory Awareness -->
+    <div class="card" style="background: #eef2ff; border: 1px solid #c3dafe;">
+        <h4>📦 Available Medicines at your Facility</h4>
+        <ul style="font-size: 0.85rem; padding-left: 20px;">
+            {% for item in stock %}
+            <li>{{ item.item_name }}: <strong>{{ item.stock_count }}</strong></li>
+            {% else %}
+            <li>No inventory records found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+  </div>
+
+  <!-- Right Side: Consultation & Referral Form -->
+  <div class="card">
+    <form method="POST">
+        <label>Doctor's Notes</label>
+        <textarea name="notes" rows="3" placeholder="Clinical observations..."></textarea>
+
+        <label>E-Prescription</label>
+        <textarea name="prescription" rows="3" placeholder="Medicines & dosage instructions..."></textarea>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px;">
+            <div>
+                <label>Next Follow-up Date (Optional)</label>
+                <input type="date" name="next_followup_date">
+            </div>
+        </div>
+
+        <label>Order Standard Lab Tests</label>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; background: #f1f5f9; padding: 10px; border-radius: 8px;">
+            <label style="margin:0; font-size:0.8rem;"><input type="checkbox" name="lab_tests" value="Complete Blood Count (CBC)"> CBC</label>
+            <label style="margin:0; font-size:0.8rem;"><input type="checkbox" name="lab_tests" value="Blood Sugar (Fasting/PP)"> Blood Sugar</label>
+            <label style="margin:0; font-size:0.8rem;"><input type="checkbox" name="lab_tests" value="Urine Routine"> Urine Test</label>
+            <label style="margin:0; font-size:0.8rem;"><input type="checkbox" name="lab_tests" value="Chest X-Ray"> X-Ray</label>
+        </div>
+
+        <label>Final Decision</label>
+        <select name="decision" id="decisionSelect" required>
+            <option value="consulted">Consulted (Check-up Done)</option>
+            <option value="referred">Refer to Another Facility</option>
+            <option value="discharged">Discharged</option>
+        </select>
+
+        <!-- Referral Specific Fields (Hidden by default) -->
+        <div id="referralFields" style="display:none; background: #fff5f5; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid #feb2b2;">
+            <label>Refer To Facility *</label>
+            <select name="to_facility_id">
+                <option value="">-- Select Higher Center --</option>
+                {% for f in facilities %}
+                    {% if f.id != current_user.facility_id %}
+                    <option value="{{ f.id }}">{{ f.name }} ({{ f.ftype|upper }})</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+
+            <label>Reason for Referral</label>
+            <input type="text" name="referral_reason" placeholder="e.g. Needs Specialist / Surgery">
+        </div>
+
+        <button type="submit" class="btn btn-block" style="margin-top:20px;">Save & Close Case</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Referral fields toggle logic
+  const decisionSelect = document.getElementById("decisionSelect");
+  const referralFields = document.getElementById("referralFields");
+  
+  decisionSelect.addEventListener("change", function() {
+    if (this.value === "referred") {
+      referralFields.style.display = "block";
+    } else {
+      referralFields.style.display = "none";
+    }
+  });
+</script>
+{% endblock %}

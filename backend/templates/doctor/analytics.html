@@ -1,0 +1,75 @@
+{% extends "shared/base.html" %}
+{% block title %}Facility Analytics{% endblock %}
+{% block content %}
+<div class="page-title">Facility Performance & Monitoring</div>
+<div class="page-subtitle">Overall health stats for {{ current_user.facility.name }}</div>
+
+<div class="stats-row">
+    <div class="stat-tile" style="border-top: 4px solid var(--emergency);">
+        <div class="num">{{ risk_data.get('Emergency', 0) }}</div>
+        <div class="lbl">Emergency Cases</div>
+    </div>
+    <div class="stat-tile" style="border-top: 4px solid var(--moderate);">
+        <div class="num">{{ risk_data.get('Moderate', 0) }}</div>
+        <div class="lbl">Moderate Cases</div>
+    </div>
+    <div class="stat-tile" style="border-top: 4px solid var(--primary);">
+        <div class="num">{{ total_consults }}</div>
+        <div class="lbl">Consultations Done</div>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
+    <!-- Patient Distribution -->
+    <div class="card">
+        <h3>Patient Categories (MCH Focus)</h3>
+        <div style="margin-top: 15px;">
+            {% for cat, count in cat_data.items() %}
+            <div style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                    <span>{{ cat|capitalize }}</span>
+                    <span>{{ count }}</span>
+                </div>
+                <div style="background: #eee; height: 8px; border-radius: 4px; margin-top: 4px;">
+                    <div class="category-bar" data-width="{{ (count / (cat_data.values()|sum or 1)) * 100 }}" style="background: var(--primary); height: 100%; width: 0%; border-radius: 4px;"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Inventory Alerts -->
+    <div class="card" style="border: 1px solid #fecaca; background: #fffafb;">
+        <h3 style="color: var(--emergency);">⚠️ Inventory Critical Alerts</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Stock below threshold. Immediate procurement needed.</p>
+        <ul style="margin-top: 15px; font-size: 0.9rem;">
+            {% for item in low_stock %}
+            <li style="margin-bottom: 8px;">
+                <strong>{{ item.item_name }}</strong>: 
+                <span style="color: var(--emergency);">Only {{ item.stock_count }} left</span>
+            </li>
+            {% else %}
+            <li style="color: var(--normal);">✅ All stock levels are sufficient.</li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('doctor.inventory') }}" class="btn btn-secondary btn-block" style="font-size: 0.8rem;">Refill Inventory</a>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <h3>Quality Index: Referral Completion</h3>
+    <p style="font-size: 0.9rem; color: var(--text-muted);">Monitoring "Closed-loop" referrals to ensure no patient is lost in transit.</p>
+    <div style="padding: 20px; text-align: center; background: #f8fafc; border-radius: 8px; margin-top: 10px;">
+        <span style="font-size: 2rem; font-weight: bold; color: var(--primary);">{{ referral_success_rate }}%</span>
+        <div style="font-size: 0.8rem;">Referral Success Rate ({{ completed_referrals }}/{{ total_referrals }} completed)</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelectorAll('.category-bar').forEach(function (bar) {
+        bar.style.width = bar.dataset.width + '%';
+    });
+</script>
+{% endblock %}

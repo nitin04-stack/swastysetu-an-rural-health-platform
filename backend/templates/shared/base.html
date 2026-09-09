@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}SwasthyaSetu - Rural Digital Health{% endblock %}</title>
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <style>
+    .goog-te-banner-frame.skiptranslate { display: none !important; }
+    body { top: 0px !important; }
+    #language-selector { 
+      padding: 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); 
+      font-size: 0.85rem; background: var(--primary-dark); color: white;
+    }
+    /* Stylish CSS Logo */
+    .logo-container { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      background: white; color: var(--primary); width: 32px; height: 32px;
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+      font-weight: bold; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  {% if current_user.is_authenticated %}
+  <nav class="navbar">
+    <div class="logo-container">
+      <div class="logo-icon">S</div> <!-- SwasthyaSetu Logo Symbol -->
+      <div class="brand">SwasthyaSetu</div>
+    </div>
+    
+    <div class="nav-links">
+      {% if current_user.role == 'asha' %}
+        <a href="{{ url_for('asha.dashboard') }}">Home</a>
+        <a href="{{ url_for('asha.high_risk_followup') }}">High Risk</a>
+      {% elif current_user.role == 'doctor' %}
+        <a href="{{ url_for('doctor.dashboard') }}">Queue</a>
+        <a href="{{ url_for('doctor.analytics') }}">📊 Analytics</a>
+        <a href="{{ url_for('doctor.referrals') }}">Referrals</a>
+      {% endif %}
+      
+      <div id="google_translate_element" style="display:none;"></div>
+      <select id="language-selector" onchange="changeLanguage(this.value)">
+        <option value="en">English</option>
+        <option value="hi">हिंदी</option>
+        <option value="mr">मराठी</option>
+      </select>
+
+      <a href="{{ url_for('auth.logout') }}" style="font-weight:bold; color:#ffcfcf;">Logout</a>
+    </div>
+  </nav>
+  {% endif %}
+
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash flash-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+
+  <div id="camera-modal" class="camera-modal">
+    <div class="camera-modal-inner">
+      <video id="camera-video" autoplay playsinline></video>
+      <canvas id="camera-canvas" style="display:none;"></canvas>
+      <div class="camera-controls">
+        <button type="button" id="camera-close-btn" class="btn btn-secondary" style="background:#ef4444; color:white;">✕ Cancel</button>
+        <button type="button" id="camera-capture-btn" class="btn camera-shutter">📸 Capture</button>
+        <button type="button" id="camera-switch-btn" class="btn btn-secondary">🔄 Flip</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/camera.js') }}"></script>
+  <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+  <script>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'en', includedLanguages: 'en,hi,mr'}, 'google_translate_element');
+    }
+    function changeLanguage(langCode) {
+      var select = document.querySelector('.goog-te-combo');
+      if (select) {
+        select.value = langCode;
+        select.dispatchEvent(new Event('change'));
+      }
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

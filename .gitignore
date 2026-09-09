@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Local databases and runtime files
+*.db
+*.sqlite
+*.sqlite3
+
+# Uploaded user data
+backend/static/uploads/*
+!backend/static/uploads/.gitkeep
+
+# Training datasets
+backend/ml/datasets/
+
+# Logs and generated files
+*.log
+.pytest_cache/
+.coverage
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

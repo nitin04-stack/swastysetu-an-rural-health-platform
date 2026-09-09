@@ -1,0 +1,49 @@
+{% extends "shared/base.html" %}
+{% block title %}Staff Signup{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <div class="auth-title">Staff Registration</div>
+    <div class="auth-subtitle">For ASHA / ANM workers and Doctors only</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash flash-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <label>Full Name</label>
+      <input type="text" name="name" required>
+
+      <label>Phone Number</label>
+      <input type="tel" name="phone" required placeholder="10-digit phone number">
+
+      <label>Password (min 6 characters)</label>
+      <input type="password" name="password" required minlength="6">
+
+      <label>I am a...</label>
+      <select name="role" required>
+        <option value="asha">ASHA / ANM Worker</option>
+        <option value="doctor">Doctor</option>
+      </select>
+
+      <label>My Facility</label>
+      <select name="facility_id">
+        <option value="">-- select facility --</option>
+        {% for f in facilities %}
+        <option value="{{ f.id }}">{{ f.name }} ({{ f.ftype|upper }})</option>
+        {% endfor %}
+      </select>
+
+      <button type="submit" class="btn btn-block">Create Account</button>
+    </form>
+
+    <p style="text-align:center; margin-top:18px; font-size:0.9rem;">
+      Already have an account? <a href="{{ url_for('auth.login') }}">Login</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

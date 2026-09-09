@@ -1,0 +1,60 @@
+{% extends "shared/base.html" %}
+{% block title %}Biomarker Photos - {{ patient.name }}{% endblock %}
+{% block content %}
+<div class="page-title">Biomarker Photos: {{ patient.name }}</div>
+<div class="page-subtitle">Take a close-up photo, or upload one, for each biomarker below.</div>
+
+<div class="biomarker-grid">
+
+  {% for btype, label, icon in [('eye','Eye (Conjunctiva)','👁️'), ('nail','Nail Bed','💅'), ('tongue','Tongue','👅')] %}
+  <div class="card">
+    <strong>{{ icon }} {{ label }}</strong>
+
+    <form method="POST" enctype="multipart/form-data" id="form-{{ btype }}">
+      <input type="hidden" name="biomarker_type" value="{{ btype }}">
+      <input type="file" name="photo" id="file-input-{{ btype }}" style="display:none;" required>
+
+      <div class="photo-options">
+        <button type="button" class="btn btn-secondary" id="camera-btn-{{ btype }}">📷 Take Photo</button>
+
+        <label class="btn btn-secondary" style="margin:0;" for="gallery-input-{{ btype }}">🖼️ Gallery</label>
+        <input type="file" accept="image/*" id="gallery-input-{{ btype }}" style="display:none;">
+
+        <!-- Only used automatically as a backup if live camera (getUserMedia) isn't
+             available on this device/connection - user never clicks this directly -->
+        <input type="file" accept="image/*" capture="environment" id="camera-fallback-input-{{ btype }}" style="display:none;">
+      </div>
+
+      <img id="preview-{{ btype }}" class="photo-preview" alt="preview">
+
+      <button type="submit" id="submit-{{ btype }}" class="btn btn-block" disabled>Upload &amp; Analyze</button>
+    </form>
+
+    {% set existing = triage.biomarker_images | selectattr("biomarker_type", "equalto", btype) | list %}
+    {% if existing %}
+      <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
+        {% for img in existing %}
+          <div class="badge badge-neutral" style="margin-bottom:6px;">{{ img.prediction_label }}</div>
+          <p style="font-size:0.85rem; color:var(--text-muted);">{{ img.prediction_note }}</p>
+          <p style="font-size:0.8rem; color:#b45309;">Confidence: {{ (((img.confidence or 0) * 100)|round(1)) }}%</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+</div>
+
+<a href="{{ url_for('asha.finish_case', triage_id=triage.id) }}" class="btn btn-block" style="margin-top:20px;">
+  ✅ Done - Submit Case to Doctor Queue
+</a>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  initPhotoCapture("eye");
+  initPhotoCapture("nail");
+  initPhotoCapture("tongue");
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "shared/base.html" %}
+{% block title %}Dossier - {{ patient.name }}{% endblock %}
+{% block content %}
+<div class="page-title">{{ patient.name }}</div>
+<div class="page-subtitle">ABHA: {{ patient.abha_id }} · {{ patient.age or '—' }} yrs · {{ patient.gender or '—' }} · {{ patient.phone or 'no phone' }}</div>
+
+<div class="card">
+  <strong>📍 Address:</strong> {{ patient.address or '—' }}
+</div>
+
+<h3>Triage History</h3>
+{% for t in patient.triages %}
+<div class="card">
+  <div class="card-row">
+    <span>{{ t.created_at.strftime('%d %b %Y, %I:%M %p') }}</span>
+    <span class="badge badge-{{ t.risk_level }}">{{ t.risk_level }}</span>
+  </div>
+  <p>SpO2: {{ t.spo2 or '—' }}% · BP: {{ t.bp_systolic or '—' }}/{{ t.bp_diastolic or '—' }} · Pulse: {{ t.pulse or '—' }} · Temp: {{ t.temperature_f or '—' }}°F</p>
+  <p><strong>Complaint:</strong> {{ t.chief_complaint or '—' }}</p>
+
+  {% if t.biomarker_images %}
+  <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
+    {% for img in t.biomarker_images %}
+    <div>
+      <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
+      <div style="font-size:0.75rem; text-align:center;">{{ img.biomarker_type }}: {{ img.prediction_label }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if t.consultation %}
+  <div style="margin-top:10px; padding-top:10px; border-top:1px solid var(--border);">
+    <strong>Doctor's Note:</strong> {{ t.consultation.notes or '—' }}<br>
+    <strong>Prescription:</strong> {{ t.consultation.prescription or '—' }}<br>
+    <strong>Decision:</strong> {{ t.consultation.decision }}
+  </div>
+  {% endif %}
+</div>
+{% else %}
+<div class="card">No triage history yet.</div>
+{% endfor %}
+
+<h3>Referral History</h3>
+{% for r in patient.referrals %}
+<div class="card card-row">
+  <span>{{ r.from_facility.name if r.from_facility else '—' }} → {{ r.to_facility.name if r.to_facility else '—' }}</span>
+  <span class="badge badge-neutral">{{ r.status }}</span>
+</div>
+{% else %}
+<div class="card">No referrals yet.</div>
+{% endfor %}
+{% endblock %}
