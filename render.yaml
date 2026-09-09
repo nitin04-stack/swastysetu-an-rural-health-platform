@@ -3,7 +3,7 @@ services:
     name: gramin-care-access
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: cd backend && gunicorn --bind 0.0.0.0:$PORT app:app
+    startCommand: cd backend && gunicorn --bind 0.0.0.0:$PORT --access-logfile - --error-logfile - --capture-output --log-level info app:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
