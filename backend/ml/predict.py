@@ -1,5 +1,6 @@
 import os
 import json
+import gc
 from PIL import Image
 
 ML_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -22,6 +23,7 @@ def _load_ml_dependencies():
     from torchvision import models, transforms
 
     torch.set_num_threads(1)
+    torch.set_num_interop_threads(1)
     _torch = torch
     _nn = nn
     _models = models
@@ -42,6 +44,11 @@ def build_model(num_classes):
 def _get_model(biomarker_type, classes, weight_path):
     if biomarker_type in _model_cache:
         return _model_cache[biomarker_type]
+
+    # Render's small instances cannot safely retain all three classifiers.
+    # Keep only the model needed by the current request in memory.
+    _model_cache.clear()
+    gc.collect()
 
     model = build_model(len(classes))
     state_dict = _torch.load(weight_path, map_location="cpu", weights_only=True)
