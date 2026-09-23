@@ -3,6 +3,9 @@
 {% block content %}
 <div class="page-title">Clinic Management Dashboard</div>
 <div class="page-subtitle">Assessing Priority Cases at {{ current_user.facility.name }}</div>
+<div class="btn-row" style="margin-bottom:20px;">
+  <a href="{{ url_for('doctor.inventory') }}" class="btn">Inventory</a>
+</div>
 
 <!-- Quick Search Bar -->
 <div class="card" style="background: #f8fafc; border: 2px solid var(--primary);">

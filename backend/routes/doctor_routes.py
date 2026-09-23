@@ -182,6 +182,7 @@ def referrals():
 
 @doctor_bp.route("/referrals/<int:referral_id>/update", methods=["POST"])
 @login_required
+@role_required("doctor")
 def update_referral(referral_id):
     ref = Referral.query.get_or_404(referral_id)
     ref.status = request.form["status"]
@@ -190,6 +191,7 @@ def update_referral(referral_id):
 
 @doctor_bp.route("/inventory")
 @login_required
+@role_required("doctor")
 def inventory():
     return render_template("doctor/inventory.html", items=InventoryItem.query.all(), facilities=Facility.query.all())
 

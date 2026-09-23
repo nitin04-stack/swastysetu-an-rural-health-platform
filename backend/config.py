@@ -10,6 +10,10 @@ class Config:
         database_url = database_url.replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_DATABASE_URI = database_url or "sqlite:///" + os.path.join(BASE_DIR, "database.db")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+    }
 
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
     ALLOWED_IMAGE_EXT = {"png", "jpg", "jpeg"}

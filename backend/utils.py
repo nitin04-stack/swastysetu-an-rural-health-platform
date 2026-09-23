@@ -16,7 +16,7 @@ def calculate_risk(spo2, bp_sys, bp_dia, fever_days, severe_flag):
 
     # 2. Emergency Thresholds (Red Zone)
     # Agar SpO2 92 se niche hai (Saans lene mein takleef)
-    if spo2 is not None and 50 < spo2 < 92:
+    if spo2 is not None and spo2 < 92:
         return "Emergency"
     
     # Agar Systolic BP 160 se upar hai (Extreme BP)

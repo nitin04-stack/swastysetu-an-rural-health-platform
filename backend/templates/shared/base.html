@@ -39,6 +39,7 @@
       {% elif current_user.role == 'doctor' %}
         <a href="{{ url_for('doctor.dashboard') }}">Queue</a>
         <a href="{{ url_for('doctor.analytics') }}">📊 Analytics</a>
+        <a href="{{ url_for('doctor.inventory') }}">Inventory</a>
         <a href="{{ url_for('doctor.referrals') }}">Referrals</a>
       {% endif %}
       

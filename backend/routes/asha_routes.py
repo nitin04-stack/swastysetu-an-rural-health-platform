@@ -198,6 +198,7 @@ def biomarker_capture(triage_id):
 
 @asha_bp.route("/biomarker/<int:triage_id>/done")
 @login_required
+@role_required("asha")
 def finish_case(triage_id):
     flash("Submitted to Doctor Queue", "success")
     return redirect(url_for("asha.dashboard"))
