@@ -1,10 +1,10 @@
 {% extends "shared/base.html" %}
-{% block title %}Staff Signup{% endblock %}
+{% block title %}Create Account{% endblock %}
 {% block content %}
 <div class="auth-wrap">
   <div class="card auth-card">
-    <div class="auth-title">Staff Registration</div>
-    <div class="auth-subtitle">For ASHA / ANM workers and Doctors only</div>
+    <div class="auth-title">Create Account</div>
+    <div class="auth-subtitle">For patients, ASHA workers and doctors</div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -25,18 +25,37 @@
       <input type="password" name="password" required minlength="6">
 
       <label>I am a...</label>
-      <select name="role" required>
+      <select name="role" id="role-select" required>
+        <option value="patient">Patient</option>
         <option value="asha">ASHA / ANM Worker</option>
         <option value="doctor">Doctor</option>
       </select>
 
-      <label>My Facility</label>
-      <select name="facility_id">
+      <div id="patient-fields">
+        <label>Age</label>
+        <input type="number" name="age" min="0" max="120">
+
+        <label>Gender</label>
+        <select name="gender">
+          <option value="">Prefer not to say</option>
+          <option value="female">Female</option>
+          <option value="male">Male</option>
+          <option value="other">Other</option>
+        </select>
+
+        <label>Address / Village</label>
+        <textarea name="address" rows="2"></textarea>
+      </div>
+
+      <div id="facility-field" style="display:none;">
+        <label>My Facility</label>
+        <select name="facility_id">
         <option value="">-- select facility --</option>
         {% for f in facilities %}
         <option value="{{ f.id }}">{{ f.name }} ({{ f.ftype|upper }})</option>
         {% endfor %}
-      </select>
+        </select>
+      </div>
 
       <button type="submit" class="btn btn-block">Create Account</button>
     </form>
@@ -46,4 +65,18 @@
     </p>
   </div>
 </div>
+<script>
+  const roleSelect = document.getElementById("role-select");
+  const patientFields = document.getElementById("patient-fields");
+  const facilityField = document.getElementById("facility-field");
+
+  function updateSignupFields() {
+    const isPatient = roleSelect.value === "patient";
+    patientFields.style.display = isPatient ? "block" : "none";
+    facilityField.style.display = isPatient ? "none" : "block";
+  }
+
+  roleSelect.addEventListener("change", updateSignupFields);
+  updateSignupFields();
+</script>
 {% endblock %}

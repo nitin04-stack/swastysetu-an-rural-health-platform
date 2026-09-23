@@ -44,6 +44,25 @@ def register_patient():
         phone = request.form.get("phone", "").strip()
         address = request.form.get("address", "")
 
+        existing_user = User.query.filter_by(phone=phone).first() if phone else None
+        if existing_user and existing_user.role != "patient":
+            flash("This phone number belongs to a staff account. Use the patient's own phone number.", "error")
+            return redirect(url_for("asha.register_patient"))
+
+        if existing_user and existing_user.patient_profile:
+            patient = existing_user.patient_profile
+            patient.name = name
+            patient.age = age
+            patient.gender = gender
+            patient.phone = phone
+            patient.address = address
+            patient.category = category
+            patient.registered_by_id = current_user.id
+            patient.home_facility_id = current_user.facility_id
+            db.session.commit()
+            flash(f"Linked {name}'s existing patient account. ABHA: {patient.abha_id}", "success")
+            return redirect(url_for("asha.new_triage", patient_id=patient.id))
+
         patient = Patient(
             name=name, age=age, gender=gender, category=category,
             phone=phone, address=address,
@@ -54,7 +73,7 @@ def register_patient():
         db.session.flush()
 
         temp_password = None
-        if phone and not User.query.filter_by(phone=phone).first():
+        if phone and not existing_user:
             temp_password = patient.abha_id[-6:]
             patient_user = User(name=name, phone=phone, role="patient")
             patient_user.set_password(temp_password)

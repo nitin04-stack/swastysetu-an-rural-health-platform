@@ -4,40 +4,113 @@
 <div class="page-title">Welcome, {{ patient.name }}</div>
 <div class="page-subtitle">ABHA ID: {{ patient.abha_id }}</div>
 
-<!-- Health Literacy Tip (SIH Point) -->
 <div class="card" style="background: #ecfdf5; border: 1px solid #10b981;">
     <strong style="color: #065f46;">💡 Daily Health Tip:</strong>
     <p style="margin: 5px 0 0; font-size: 0.9rem;">Clean water and hand washing prevent 80% of infections. Always use boiled water during monsoon.</p>
 </div>
 
-<!-- Queue Awareness -->
 <div class="card">
-    <h3>🕒 My Consultation Status</h3>
+<div class="stats-row">
+    <div class="stat-tile">
+        <div class="num">{{ patient.triages|length }}</div>
+        <div class="lbl">Check-ups</div>
+    </div>
+    <div class="stat-tile">
+        <div class="num">{{ patient.consultations|length }}</div>
+        <div class="lbl">Doctor Visits</div>
+    </div>
+    <div class="stat-tile">
+        <div class="num">{{ patient.referrals|length }}</div>
+        <div class="lbl">Referrals</div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>🕒 Current Consultation Status</h3>
     {% set pending = patient.triages | rejectattr("consultation") | list %}
     {% if pending %}
-        <p style="color: var(--moderate);"><strong>Status:</strong> In Queue (Approx. Wait: 15-20 mins)</p>
-        <div style="font-size: 1.5rem; font-weight: bold; text-align: center; color: var(--primary);">#{{ pending|length + 2 }}</div>
-        <p style="text-align: center; font-size: 0.8rem;">Queue Position</p>
+        <p style="color: var(--moderate);"><strong>Status:</strong> Waiting for doctor review</p>
+        <p style="font-size: 0.9rem;">Your latest check-up is in the doctor queue.</p>
     {% else %}
         <p style="color: var(--normal);">✅ No active check-ups in queue.</p>
     {% endif %}
 </div>
 
-<!-- Prescription History -->
-<h3>My Prescriptions</h3>
+{% if upcoming_followups %}
+<div class="card" style="border-left: 4px solid var(--moderate);">
+    <h3>📅 Upcoming Follow-up</h3>
+    {% for consultation in upcoming_followups %}
+    <p style="margin-bottom: 4px;"><strong>{{ consultation.next_followup_date.strftime('%d %b %Y') }}</strong></p>
+    <p style="margin-top: 0;">Please visit the health facility on your follow-up date.</p>
+    {% endfor %}
+</div>
+{% endif %}
+
+<h3>My Health History</h3>
 {% for t in patient.triages %}
-    {% if t.consultation %}
     <div class="card">
         <div class="card-row">
-            <strong>Check-up Date: {{ t.created_at.strftime('%d %b %Y') }}</strong>
-            <span class="badge badge-Normal">Done</span>
+            <strong>Check-up: {{ t.created_at.strftime('%d %b %Y, %I:%M %p') }}</strong>
+            <span class="badge badge-{{ t.risk_level or 'neutral' }}">{{ t.risk_level or 'Pending' }}</span>
         </div>
-        <p><strong>Medicines:</strong> {{ t.consultation.prescription }}</p>
-        {% if t.consultation.lab_tests_recommended %}
-        <p style="font-size: 0.85rem; color: #ef4444;">🧪 <strong>Required Tests:</strong> {{ t.consultation.lab_tests_recommended }}</p>
+
+        <p><strong>Vitals:</strong>
+            BP {{ t.bp_systolic or '—' }}/{{ t.bp_diastolic or '—' }} ·
+            SpO2 {{ t.spo2 or '—' }}% ·
+            Pulse {{ t.pulse or '—' }} ·
+            Temperature {{ t.temperature_f or '—' }}°F
+        </p>
+        <p><strong>Concern:</strong> {{ t.chief_complaint or '—' }}</p>
+
+        {% if t.biomarker_images %}
+        <div style="padding-top: 10px; border-top: 1px solid var(--border);">
+            <strong>AI Scan Results</strong>
+            {% for image in t.biomarker_images %}
+            <p style="margin: 6px 0; font-size: 0.9rem;">
+                {{ image.biomarker_type|capitalize }}:
+                <strong>{{ image.prediction_label }}</strong>
+                ({{ ((image.confidence or 0) * 100)|round(1) }}% confidence)
+            </p>
+            {% endfor %}
+        </div>
         {% endif %}
-        <button onclick="window.print()" class="btn btn-secondary" style="font-size: 0.7rem; padding: 5px 10px;">🖨️ Download Prescription</button>
+
+        {% if t.consultation %}
+        <div style="padding-top: 10px; border-top: 1px solid var(--border);">
+            <strong>Doctor Consultation</strong>
+            <p><strong>Decision:</strong> {{ t.consultation.decision or '—' }}</p>
+            <p><strong>Doctor's Note:</strong> {{ t.consultation.notes or '—' }}</p>
+            <p><strong>Prescription:</strong> {{ t.consultation.prescription or '—' }}</p>
+            {% if t.consultation.lab_tests_recommended %}
+            <p style="color: #b45309;"><strong>Tests Recommended:</strong> {{ t.consultation.lab_tests_recommended }}</p>
+            {% endif %}
+            {% if t.consultation.next_followup_date %}
+            <p><strong>Next Follow-up:</strong> {{ t.consultation.next_followup_date.strftime('%d %b %Y') }}</p>
+            {% endif %}
+        </div>
+        {% else %}
+        <p style="color: var(--moderate);"><strong>Doctor update:</strong> Still waiting for consultation.</p>
+        {% endif %}
     </div>
-    {% endif %}
+{% else %}
+<div class="card">No check-up history yet.</div>
 {% endfor %}
+
+<h3>Referral Status</h3>
+{% for referral in patient.referrals %}
+<div class="card card-row">
+    <span>
+        {{ referral.from_facility.name if referral.from_facility else 'Current facility' }}
+        → {{ referral.to_facility.name if referral.to_facility else 'Facility not assigned' }}
+        {% if referral.reason %}<br><small>{{ referral.reason }}</small>{% endif %}
+    </span>
+    <span class="badge badge-neutral">{{ referral.status }}</span>
+</div>
+{% else %}
+<div class="card">No referral has been created for you.</div>
+{% endfor %}
+
+<div class="btn-row">
+    <button onclick="window.print()" class="btn btn-secondary">🖨️ Print Health Record</button>
+</div>
 {% endblock %}

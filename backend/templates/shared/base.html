@@ -41,6 +41,8 @@
         <a href="{{ url_for('doctor.analytics') }}">📊 Analytics</a>
         <a href="{{ url_for('doctor.inventory') }}">Inventory</a>
         <a href="{{ url_for('doctor.referrals') }}">Referrals</a>
+      {% elif current_user.role == 'patient' %}
+        <a href="{{ url_for('patient.dashboard') }}">My Health</a>
       {% endif %}
       
       <div id="google_translate_element" style="display:none;"></div>

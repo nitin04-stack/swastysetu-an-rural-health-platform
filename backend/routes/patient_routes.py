@@ -1,3 +1,5 @@
+from datetime import date
+
 from flask import Blueprint, render_template, abort
 from flask_login import login_required, current_user
 
@@ -20,4 +22,15 @@ def dashboard():
     if patient is None:
         abort(404)  # account exists but not yet linked to a clinical record
 
-    return render_template("patient/dashboard.html", patient=patient)
+    upcoming_followups = [
+        consultation
+        for consultation in patient.consultations
+        if consultation.next_followup_date
+        and consultation.next_followup_date >= date.today()
+    ]
+
+    return render_template(
+        "patient/dashboard.html",
+        patient=patient,
+        upcoming_followups=upcoming_followups,
+    )
