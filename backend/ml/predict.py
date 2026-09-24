@@ -13,6 +13,47 @@ _transform = None
 _model_cache = {}
 
 
+BIOMARKER_FINDINGS = {
+    "eye": {
+        "Normal": "Eyes look normal; the conjunctiva appears healthy and not pale.",
+        "Moderate_change": "Mild eye/conjunctival pallor or discoloration is visible; clinical review is advised.",
+        "Severe_change": "Severe pallor or abnormal discoloration of the eye/conjunctiva is visible; this needs prompt clinical evaluation.",
+    },
+    "nail": {
+        "Normal": "Nail bed color and texture look normal and healthy.",
+        "Moderate_change": "Mild nail bed pallor or discoloration is visible; this may need follow-up.",
+        "Severe_change": "Marked nail bed pallor or discoloration is visible; this suggests a significant health concern and should be reviewed urgently.",
+    },
+    "tongue": {
+        "Normal": "Tongue looks normal with healthy color and texture.",
+        "Moderate_change": "Mild tongue coating or color change is visible; review is advised.",
+        "Severe_change": "Noticeable tongue pallor, coating, or texture change is visible; a medical assessment is recommended.",
+    },
+}
+
+
+def _format_label(label):
+    if not label:
+        return "Not Available"
+    return str(label).replace("_", " ").replace("-", " ").title()
+
+
+def explain_biomarker_finding(biomarker_type, label):
+    if biomarker_type not in BIOMARKER_FINDINGS:
+        return "Biomarker assessment is available. Please review the clinical image manually."
+
+    key = str(label).strip()
+    if key in BIOMARKER_FINDINGS[biomarker_type]:
+        return BIOMARKER_FINDINGS[biomarker_type][key]
+
+    # Support labels like 'Severe Change' or 'Moderate Change' from fallback UI text.
+    normalized = key.replace(" ", "_")
+    if normalized in BIOMARKER_FINDINGS[biomarker_type]:
+        return BIOMARKER_FINDINGS[biomarker_type][normalized]
+
+    return f"{_format_label(key)} was detected for {biomarker_type}. Please review the photo with the clinician."
+
+
 def _load_ml_dependencies():
     global _torch, _nn, _models, _transform
     if _torch is not None:
@@ -89,9 +130,11 @@ def predict_biomarker(image_path, biomarker_type):
             probs = _torch.softmax(outputs, dim=1)[0]
             conf, pred_idx = _torch.max(probs, dim=0)
 
+        label = classes[pred_idx.item()]
+        finding = explain_biomarker_finding(biomarker_type, label)
         return {
-            "label": classes[pred_idx.item()],
-            "note": f"AI Scan completed for {biomarker_type}.",
+            "label": _format_label(label),
+            "note": finding,
             "confidence": round(float(conf.item()), 2)
         }
 

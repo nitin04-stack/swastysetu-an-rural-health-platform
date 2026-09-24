@@ -66,11 +66,14 @@
         <div style="padding-top: 10px; border-top: 1px solid var(--border);">
             <strong>AI Scan Results</strong>
             {% for image in t.biomarker_images %}
-            <p style="margin: 6px 0; font-size: 0.9rem;">
-                {{ image.biomarker_type|capitalize }}:
-                <strong>{{ image.prediction_label }}</strong>
-                ({{ ((image.confidence or 0) * 100)|round(1) }}% confidence)
-            </p>
+            <div style="margin: 10px 0; padding: 8px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <p style="margin: 0 0 4px; font-size: 0.9rem;">
+                    {{ image.biomarker_type|capitalize }}:
+                    <strong>{{ image.prediction_label }}</strong>
+                    ({{ ((image.confidence or 0) * 100)|round(1) }}% confidence)
+                </p>
+                <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted);">{{ image.prediction_note }}</p>
+            </div>
             {% endfor %}
         </div>
         {% endif %}

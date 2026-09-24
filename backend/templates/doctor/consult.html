@@ -15,9 +15,11 @@
         {% if triage.biomarker_images %}
         <div style="display:flex; gap:10px; margin-top:10px;">
             {% for img in triage.biomarker_images %}
-            <div>
-                <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" width="80" style="border-radius:5px; border:1px solid #ddd;">
-                <div style="font-size:0.7rem; text-align:center;">{{ img.biomarker_type }}</div>
+            <div style="max-width:110px;">
+                <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" width="80" style="border-radius:5px; border:1px solid #ddd; display:block; margin:0 auto;">
+                <div style="font-size:0.7rem; text-align:center; margin-top:4px; font-weight:600;">{{ img.biomarker_type|capitalize }}</div>
+                <div style="font-size:0.7rem; color:#b45309; text-align:center;">{{ img.prediction_label }}</div>
+                <div style="font-size:0.68rem; color:var(--text-muted); text-align:center; margin-top:4px;">{{ img.prediction_note }}</div>
             </div>
             {% endfor %}
         </div>

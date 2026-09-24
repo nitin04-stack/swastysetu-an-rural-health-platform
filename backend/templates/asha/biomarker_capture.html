@@ -35,8 +35,8 @@
       <div style="margin-top:14px; padding-top:14px; border-top:1px solid var(--border);">
         {% for img in existing %}
           <div class="badge badge-neutral" style="margin-bottom:6px;">{{ img.prediction_label }}</div>
-          <p style="font-size:0.85rem; color:var(--text-muted);">{{ img.prediction_note }}</p>
-          <p style="font-size:0.8rem; color:#b45309;">Confidence: {{ (((img.confidence or 0) * 100)|round(1)) }}%</p>
+          <p style="font-size:0.84rem; color:var(--text-muted); margin:6px 0;">{{ img.prediction_note }}</p>
+          <p style="font-size:0.8rem; color:#b45309; margin:0;">Confidence: {{ (((img.confidence or 0) * 100)|round(1)) }}%</p>
         {% endfor %}
       </div>
     {% endif %}

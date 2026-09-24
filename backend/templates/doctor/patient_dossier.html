@@ -21,9 +21,11 @@
   {% if t.biomarker_images %}
   <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:10px;">
     {% for img in t.biomarker_images %}
-    <div>
-      <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" style="width:100px; height:100px; object-fit:cover; border-radius:8px;">
-      <div style="font-size:0.75rem; text-align:center;">{{ img.biomarker_type }}: {{ img.prediction_label }}</div>
+    <div style="max-width:130px;">
+      <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" style="width:100px; height:100px; object-fit:cover; border-radius:8px; display:block; margin:0 auto;">
+      <div style="font-size:0.75rem; text-align:center; font-weight:600; margin-top:6px;">{{ img.biomarker_type|capitalize }}</div>
+      <div style="font-size:0.7rem; text-align:center; color:#b45309;">{{ img.prediction_label }}</div>
+      <div style="font-size:0.68rem; text-align:center; color:var(--text-muted); margin-top:4px;">{{ img.prediction_note }}</div>
     </div>
     {% endfor %}
   </div>
